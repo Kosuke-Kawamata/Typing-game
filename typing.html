@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Let's typing !!</title>
+
+  <style>
+    body {
+      font-size: 6em;
+      text-align: center;
+    }
+
+    #count {
+      margin: 0;
+      font-weight: bold;
+      color: #888;
+
+    }
+
+    #wrap {
+      margin-top: 20px;
+      padding: 20px 10px;
+      background-color: #666;
+      font-weight: bold;
+      color: #fff;
+      width: 90%;
+      height: 200px;
+      margin: 0 auto;
+    }
+
+    #text {
+      margin: auto 0;
+    }
+
+    span {
+      font-size: 50%;
+      transition: all 300ms 0s ease;
+    }
+    .add-color {
+      font-size: 0.5 em;
+      /* display: none; */
+      color: #666;  
+      /* 文字を小さくして、色を背景と同じにして、その変化のスピードを遅くすることで、文字が小さくなって消えたようにみせてる */
+      /* 特にfont-size を設定していなければ1em = 16px */
+    }
+    .undo-color{
+      background-color: #666;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <p id="count">60</p>
+
+  <div id="wrap">
+    <p id="text"></p>
+  </div>
+
+  <button id="start">スタート</button>
+
+  <script>
+
+    {
+      const wrap = document.querySelector('#wrap');
+      const start = document.querySelector('#start');
+
+      const textLists = [
+        'Hello World', 'This is my App', 'How are you?',
+        'Today is sunny', 'I love JavaScript!', 'Good morning',
+        'I am Japanese', 'Let it be', 'Samurai',
+        'Typing Game', 'Information Technology',
+        'I want to be a programmer', 'What day is today?',
+        'I want to build a web app', 'Nice to meet you',
+        'Chrome Firefox Edge Safari', 'machine learning',
+        'Brendan Eich', 'John Resig', 'React Vue Angular',
+        'Netscape Communications', 'undefined null NaN',
+        'Thank you very much', 'Google Apple Facebook Amazon',
+        'ECMAScript', 'console.log', 'for while if switch',
+        'var let const', 'Windows Mac Linux iOS Android',
+        'programming'
+      ];
+
+      let checkTexts = [];
+
+      const createTexts = () => {
+
+        const p = document.querySelector('#text'); //p要素を取得
+        const random = Math.floor(Math.random() * textLists.length);  //ランダムな0〜2までの数値生成
+        //resetする一文
+        p.textContent = '';  //pタグに虚無の文字列を入れる ➡ リセット
+        //ランダムな文字列を.split() で1文字ずつに区切り､.map() でその1文字ずつに区切ったものに対して以下のfn()を実行する.そのあと､最終結果をもとに､新しい配列を作る｡      
+
+        checkTexts = textLists[random].split('').map(x => {
+          const span = document.createElement('span');
+          span.textContent = x;
+          p.appendChild(span);
+          return span;   //checkTexts ではチェックするための素材を生成してる
+        })
+      };
+
+
+      let score = 0;
+      const keyDown = (e) => {
+        wrap.style.backgroundColor='#666';
+        // console.log(e);  //key情報を取得する際のコード
+        // console.log(checkTexts);  
+        //↑checkTextsの中身のspanタグだらけの配列をコンソールする
+        if (e.key === checkTexts[0].textContent) {
+          checkTexts[0].className = 'add-color';
+
+          checkTexts.shift();
+          score++;
+          if(!checkTexts.length){     //!checkText とすることで､ checkText.lengthがゼロになったときifを実行､つまり､「if(checkTexts.length)は､「checkText の length がある場合に､trueになる」､逆に､「if(！checkTexts.length)はcheckTexts.length がない場合に､trueになる」」
+            createTexts();  
+          }
+        } else if(e.key === 'Shift'){
+          wrap.style.backgroundColor = '#666';
+        } else {
+          wrap.style.backgroundColor = 'red';
+        }
+        //e.keyでkeyを判別し､その出力された文字とcheckTextsの<span>　</span>が合致する・しないで処理を変えてる
+      };
+
+      const rankCheck = score => { 
+        let text = '';        
+        if(score < 100){
+          text = `あなたのランクはCです。\nBランクまであと${100 - score}文字です。`;
+        }else if(score < 200){
+          text = `あなたのランクはＢです｡\nAランクまであと${200 - score}文字です｡`;
+        }else if(score <300){
+          text = `あなたのランクはAです｡\nAランクまであと${200 - score}文字です｡`;
+        }else if(score >= 300){
+          text = `あなたのランクはSです｡\nおめでとうございます！！`;
+        }
+
+        return `${score}文字打てました！\n${text}\n【ok】リトライ / 【キャンセル】終了`;
+      };
+
+      const gameOver = x => { 
+        count.textContent = '終了！';
+        clearInterval(x);
+        const result = confirm(rankCheck(score));    //confirm()を使うと､「true・false」が取得でき､それを result に入れることで､その「true false」をif文とかで応用できるようにしている｡
+        if(result) location.reload();
+      };
+
+      const timer = () => { 
+        const count = document.querySelector('#count');
+        let time = 60;
+        const id = setInterval(()=>{
+          count.textContent = time--;
+          if(time < -1)gameOver(id); 
+        },1000);
+      };
+
+
+
+      start.addEventListener('click', () => {
+        timer();
+        createTexts();
+        start.style.display = 'none';
+        document.addEventListener('keydown', keyDown);
+      })
+    }
+       // addEventListener('keydown')を使うと関数keyDownが紐付けされて､キーボードの情報を関数keyDownで扱えるようになる
+
+  </script>
+
+</body>
+
+</html>
